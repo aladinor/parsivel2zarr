@@ -23,14 +23,10 @@ class Parsivel(object):
     def _get_data(self):
         with open(self.path, 'r') as f:
             lines = f.readlines()
-            if len(lines) != 0:
-                _: str = '\n'
-                _vars = {f"{i.split(':')[0].replace(f'{_}', '')}": f"{i[3:].replace(f'{_}', '')}"
-                         for i in lines[1:] if len(i) > 3}
-                return _vars, lines[0].replace(f'{_}', '')
-            else:
-                print(self.path)
-                return None, None
+            _: str = '\n'
+            _vars = {f"{i.split(':')[0].replace(f'{_}', '')}": f"{i[3:].replace(f'{_}', '')}"
+                     for i in lines[1:] if len(i) > 3}
+            return _vars, lines[0].replace(f'{_}', '')
 
     def txt2xr(self):
         data = self.data
@@ -86,10 +82,10 @@ def main():
     txt_files = glob.glob(f'{path}/***/**/*/*.txt')
     ls_ds = [Parsivel(i, save="../res").txt2xr() for i in txt_files[:1000] if os.path.getsize(i) > 0]
     ds = xr.merge(ls_ds)
-    path_save = '../res/disdro_test'
+    path_save = 'C:/Users/alfonso8/Documents/python/parsivel/zarr'
     make_dir(path_save)
-    ds.to_zarr(path_save)
-    print(1)
+    _ = ds.to_zarr(store=f'{path_save}', consolidated=True, mode='w')
+    print('done!')
     pass
 
 
