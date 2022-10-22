@@ -78,11 +78,14 @@ class Parsivel(object):
 
 
 def main():
-    path = 'C:/Users/alfonso8/Downloads/0035215020'
+    #path = 'C:/Users/alfonso8/Downloads/0035215020'
+    path = '/data/keeling/a/alfonso8/projects/parsivel2zarr/data/0035215020'
     txt_files = glob.glob(f'{path}/***/**/*/*.txt')
-    ls_ds = [Parsivel(i, save="../res").txt2xr() for i in txt_files[:1000] if os.path.getsize(i) > 0]
+    ls_ds = [Parsivel(i, save="../res").txt2xr() for i in txt_files[:2000] if os.path.getsize(i) > 0]
     ds = xr.merge(ls_ds)
-    path_save = 'C:/Users/alfonso8/Documents/python/parsivel/zarr'
+#    path_save = 'C:/Users/alfonso8/Documents/python/parsivel/zarr'
+    path_save = '/data/keeling/a/alfonso8/gpm/parsivel/zarr'
+ 
     make_dir(path_save)
     _ = ds.to_zarr(store=f'{path_save}', consolidated=True, mode='w')
     print('done!')
