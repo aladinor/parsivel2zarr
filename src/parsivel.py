@@ -5,8 +5,6 @@ import xarray as xr
 import io
 import glob
 import os
-import pydsd as pyd
-import matplotlib.pyplot as plt
 from pandas import to_datetime, to_numeric
 from utils import get_pars_from_ini, make_dir
 from re import split
