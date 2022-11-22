@@ -131,15 +131,16 @@ class Parsivel(object):
 def main():
     location = split(', |_|-|!', os.popen('hostname').read())[0].replace("\n", "")
     path_data = get_pars_from_ini(file_name='loc.ini')[location]['path_data']
-    data = f'{path_data}/parsivel/data/0035215020'
-    path_save = f"{path_data}/parsivel/zarr/{data.split('/')[-1]}"
-    folders = list(filter(os.path.isdir, glob.glob(f'{data}/**/*', recursive=True)))
-    for idx, j in enumerate(folders):
-        ls_ds = [Parsivel(i).txt2xr() for i in glob.glob(f'{j}/*.txt') if os.path.getsize(i) > 0]
-        if ls_ds:
-            ds = xr.merge(ls_ds)
-            ds2zarr(ds, store=path_save)
-    print('done!')
+    datas = list(filter(os.path.isdir, glob.glob(f'{path_data}/parsivel/data/*', recursive=True)))
+    for data in datas:
+        path_save = f"{path_data}/parsivel/zarr/{data.split('/')[-1]}"
+        folders = list(filter(os.path.isdir, glob.glob(f'{data}/**/*', recursive=True)))
+        for idx, j in enumerate(folders):
+            ls_ds = [Parsivel(i).txt2xr() for i in glob.glob(f'{j}/*.txt') if os.path.getsize(i) > 0]
+            if ls_ds:
+                ds = xr.merge(ls_ds)
+                ds2zarr(ds, store=path_save)
+        print('done!')
     pass
 
 
