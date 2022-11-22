@@ -78,7 +78,10 @@ class Parsivel(object):
                     elif i == '21':
                         self._base_time = to_datetime(data[i], format='%d.%m.%Y')
                     else:
-                        _val = to_datetime(data[i], format='%H%M%S %d.%m.%Y').to_datetime64()
+                        try:
+                            _val = to_datetime(data[i], format='%H%M%S %d.%m.%Y').to_datetime64()
+                        except ValueError:
+                            print(f"Non compatible format. {self.path}. Please make it compatible")
                 else:
                     try:
                         _val = to_numeric(data[i])
