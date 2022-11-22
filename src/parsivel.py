@@ -21,14 +21,14 @@ def ds2zarr(ds, store='../zarr', **kwargs):
     store = zarr.DirectoryStore(store)
     args = {'consolidated': True}
     try:
-        ds.to_zarr(store=store,  **args)
+        ds.to_zarr(store=store, **args)
     except zarr.errors.ContainsGroupError:
         args['mode'] = 'a'
         if not hasattr(ds, 'time'):
             args['append_dim'] = 'params'
         else:
             args['append_dim'] = 'time'
-        ds.to_zarr(store=store,  **args)
+        ds.to_zarr(store=store, **args)
 
 
 class Parsivel(object):
@@ -49,7 +49,8 @@ class Parsivel(object):
             try:
                 _vars = {i.rstrip('\n\r;').split(':')[0]: (i.rstrip('\n\r;').split(':')[0]
                                                            if len(i.rstrip('\n\r;').split(':')) == 1
-                                                           else ''.join(i.rstrip('\n\r;').split(':')[1:])) for i in lines}
+                                                           else ''.join(i.rstrip('\n\r;').split(':')[1:])) for i in
+                         lines}
                 return _vars, lines[0].rstrip('\n\r;')
             except IndexError:
                 raise Exception(f"Empty file {self.path}. Please use a non-empty file")
@@ -82,19 +83,27 @@ class Parsivel(object):
                     try:
                         _val = to_numeric(data[i])
                         xr_data[table[i]['short_name']] = (['time'], np.array([np.where(_val == -9.999,
-                                                                                            np.nan, _val)]))
+                                                                                        np.nan, _val)]))
                     except ValueError:
                         _val = np.fromstring(data[i], sep=';')
                         if table[i]['short_name'] == 'vd':
                             xr_data[table[i]['short_name']] = (['time', 'velocity'], np.array([_val]))
                         elif table[i]['short_name'] == 'raw':
-                            _val = _val.reshape(32, 32)
-                            xr_data[table[i]['short_name']] = (['time', 'diameter', 'velocity'], np.array([_val]))
+                            try:
+                                _val = _val.reshape(32, 32)
+                                xr_data[table[i]['short_name']] = (['time', 'diameter', 'velocity'], np.array([_val]))
+                            except ValueError:
+                                print(f"Corrupted file. {self.path}")
+                                pass
                         else:
                             if i == '90':
-                                xr_data[table[i]['short_name']] = (['time', 'diameter'],
-                                                                   np.array([10 ** np.where(_val == -9.999,
-                                                                                            np.nan, _val)]))
+                                if _val.shape[0] != 32:
+                                    print(f"Corrupted file. {self.path}")
+                                    pass
+                                else:
+                                    xr_data[table[i]['short_name']] = (['time', 'diameter'],
+                                                                       np.array([10 ** np.where(_val == -9.999,
+                                                                                                np.nan, _val)]))
                             else:
                                 xr_data[table[i]['short_name']] = (['time', 'diameter'],
                                                                    np.array([np.where(_val == -9.999, np.nan, _val)]))
@@ -125,15 +134,12 @@ def main():
     data = f'{path_data}/parsivel/data/0035215020'
     path_save = f"{path_data}/parsivel/zarr/{data.split('/')[-1]}"
     folders = list(filter(os.path.isdir, glob.glob(f'{data}/**/*', recursive=True)))
-    for j in folders[5:100]:
+    for idx, j in enumerate(folders):
         ls_ds = [Parsivel(i).txt2xr() for i in glob.glob(f'{j}/*.txt') if os.path.getsize(i) > 0]
         if ls_ds:
             ds = xr.merge(ls_ds)
             ds2zarr(ds, store=path_save)
-        else:
-            print('hay una lista vacia')
-            pass
-        print('done!')
+    print('done!')
     pass
 
 
