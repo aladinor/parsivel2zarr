@@ -53,3 +53,11 @@ def get_pars_from_ini(file_name='variables.ini'):
         dt_pars[group] = db
 
     return dt_pars
+
+
+def var_to_dict(standard_name, data, units, long_name):
+    """
+    Convert variable information to a dictionary.
+    """
+    d = {"data": data[:], "units": units, "long_name": long_name, "standard_name": standard_name}
+    return d
