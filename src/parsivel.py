@@ -21,7 +21,7 @@ def ds2zarr(ds, store='../zarr', **kwargs):
     store = zarr.DirectoryStore(store)
     args = {'consolidated': True}
     try:
-        ds.to_zarr(store=store, **args)
+        ds.to_zarr(store=store,  **args)
     except zarr.errors.ContainsGroupError:
         args['mode'] = 'a'
         if not hasattr(ds, 'time'):
@@ -86,7 +86,7 @@ class Parsivel(object):
                             print(f"Non-compatible base time format. {self.path}. Please make it compatible")
                             continue
                     else:
-                        pass
+                        xr_data[table[i]['short_name']] = (['time'], [data[i]])
                 else:
                     try:
                         _val = to_numeric(data[i])
