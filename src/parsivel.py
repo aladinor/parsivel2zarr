@@ -78,6 +78,7 @@ class Parsivel(object):
                             self.time = to_datetime(data[i], format='%H%M%S')
                         except ValueError:
                             print(f"Non-compatible time format. {self.path}. Please make it compatible")
+                            continue
                     elif i == '21':
                         try:
                             self._base_time = to_datetime(data[i], format='%d.%m.%Y')
@@ -87,8 +88,9 @@ class Parsivel(object):
                     else:
                         try:
                             _val = to_datetime(data[i], format='%H%M%S %d.%m.%Y').to_datetime64()
-                            continue
+                            xr_data[table[i]['short_name']] = (['time'],  _val)
                         except ValueError:
+                            xr_data[table[i]['short_name']] = (['time'], np.nan)
                             print(f"Non-compatible date format. {self.path}. Please make it compatible")
                 else:
                     try:
@@ -106,13 +108,12 @@ class Parsivel(object):
                             except ValueError:
                                 _val = np.tile(np.nan, (32, 32))
                                 xr_data[table[i]['short_name']] = (['time', 'diameter', 'velocity'], np.array([_val]))
-                                print(f"Corrupted file. Nd is not complete. {self.path}")
+                                print(f"Corrupted file. Raw data is not complete. {self.path}")
                         else:
                             if i == '90':
                                 if _val.shape[0] != 32:
                                     _val = np.tile(np.nan, 32)
-                                    print(f"Corrupted file. {self.path}")
-                                    continue
+                                    print(f"Corrupted file. Nd data is not complete. {self.path}")
                                 else:
                                     xr_data[table[i]['short_name']] = (['time', 'diameter'],
                                                                        np.array([10 ** np.where(_val == -9.999,
@@ -128,9 +129,11 @@ class Parsivel(object):
 
         vel = np.array(self.vars['velocity']['vel'])
         diameter = np.array(self.vars['diameter']['diam'])
-        coords = dict(time=('time', np.array(
-            [to_datetime(f"{self.time.strftime('%X')} {self._base_time.strftime('%Y%m%d')}").to_datetime64()
-             ])),
+        coords = dict(time=('time',
+                            np.array(
+                                [to_datetime(
+                                    f"{self.time.strftime('%X')} {self._base_time.strftime('%Y%m%d')}").to_datetime64()
+                                 ])),
                       diameter=(['diameter'], diameter),
                       velocity=(['velocity'], vel))
         ds = xr.Dataset(
