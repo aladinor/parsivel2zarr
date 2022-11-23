@@ -74,14 +74,20 @@ class Parsivel(object):
                     _val = data[i].replace(' ', '')
                 elif _dt == 'timestamp':
                     if i == '20':
-                        self.time = to_datetime(data[i], format='%H%M%S')
+                        try:
+                            self.time = to_datetime(data[i], format='%H%M%S')
+                        except ValueError:
+                            print(f"Non-compatible time format. {self.path}. Please make it compatible")
                     elif i == '21':
-                        self._base_time = to_datetime(data[i], format='%d.%m.%Y')
+                        try:
+                            self._base_time = to_datetime(data[i], format='%d.%m.%Y')
+                        except ValueError:
+                            print(f"Non-compatible base time format. {self.path}. Please make it compatible")
                     else:
                         try:
                             _val = to_datetime(data[i], format='%H%M%S %d.%m.%Y').to_datetime64()
                         except ValueError:
-                            print(f"Non compatible format. {self.path}. Please make it compatible")
+                            print(f"Non-compatible date format. {self.path}. Please make it compatible")
                 else:
                     try:
                         _val = to_numeric(data[i])
@@ -96,7 +102,7 @@ class Parsivel(object):
                                 _val = _val.reshape(32, 32)
                                 xr_data[table[i]['short_name']] = (['time', 'diameter', 'velocity'], np.array([_val]))
                             except ValueError:
-                                print(f"Corrupted file. {self.path}")
+                                print(f"Corrupted file. Nd is not complete. {self.path}")
                                 pass
                         else:
                             if i == '90':
