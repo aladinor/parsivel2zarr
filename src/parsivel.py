@@ -87,7 +87,6 @@ class Parsivel(object):
                             continue
                     else:
                         if data[i]:
-                            print(type(data[i]))
                             xr_data[table[i]['short_name']] = (['time'],  [data[i]])
                         else:
                             xr_data[table[i]['short_name']] = (['time'], ['None'])
