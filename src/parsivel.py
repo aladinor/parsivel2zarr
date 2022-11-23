@@ -87,7 +87,7 @@ class Parsivel(object):
                             continue
                     else:
                         _val = data[i]
-                        xr_data[table[i]['short_name']] = (['time'],  np.array([_val]))
+                        xr_data[table[i]['short_name']] = (['time'],  [_val])
                 else:
                     try:
                         _val = to_numeric(data[i])
