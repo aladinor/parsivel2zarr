@@ -86,12 +86,8 @@ class Parsivel(object):
                             print(f"Non-compatible base time format. {self.path}. Please make it compatible")
                             continue
                     else:
-                        try:
-                            _val = to_datetime(data[i], format='%H%M%S %d.%m.%Y').to_datetime64()
-                            xr_data[table[i]['short_name']] = (['time'],  np.array([_val]))
-                        except ValueError:
-                            xr_data[table[i]['short_name']] = (['time'], np.array([np.nan]))
-                            print(f"Non-compatible date format. {self.path}. Please make it compatible")
+                        _val = data[i]
+                        xr_data[table[i]['short_name']] = (['time'],  np.array([_val]))
                 else:
                     try:
                         _val = to_numeric(data[i])
