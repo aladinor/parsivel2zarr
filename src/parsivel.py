@@ -7,7 +7,7 @@ import glob
 import os
 import zarr
 from pandas import to_datetime, to_numeric
-from utils import get_pars_from_ini, make_dir
+from utils import get_pars_from_ini
 from re import split
 
 
@@ -86,8 +86,12 @@ class Parsivel(object):
                             print(f"Non-compatible base time format. {self.path}. Please make it compatible")
                             continue
                     else:
-                        _val = data[i]
-                        xr_data[table[i]['short_name']] = (['time'],  [_val])
+                        if data[i]:
+                            print(type(data[i]))
+                            xr_data[table[i]['short_name']] = (['time'],  [data[i]])
+                        else:
+                            xr_data[table[i]['short_name']] = (['time'], ['None'])
+
                 else:
                     try:
                         _val = to_numeric(data[i])
