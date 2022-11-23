@@ -86,7 +86,7 @@ class Parsivel(object):
                             print(f"Non-compatible base time format. {self.path}. Please make it compatible")
                             continue
                     else:
-                        continue
+                        pass
                 else:
                     try:
                         _val = to_numeric(data[i])
