@@ -88,7 +88,7 @@ class Parsivel(object):
                     else:
                         try:
                             _val = to_datetime(data[i], format='%H%M%S %d.%m.%Y').to_datetime64()
-                            xr_data[table[i]['short_name']] = (['time'],  _val)
+                            xr_data[table[i]['short_name']] = (['time'],  np.array([_val]))
                         except ValueError:
                             xr_data[table[i]['short_name']] = (['time'], np.nan)
                             print(f"Non-compatible date format. {self.path}. Please make it compatible")
@@ -124,6 +124,10 @@ class Parsivel(object):
             else:
                 # TO DO: Make sure what are the fields not recognized in previous block
                 attrs[i] = f'{data[i]}'
+            try:
+                attrs[table[i]['short_name']] = self.vars['variables'][i]
+            except KeyError:
+                pass
         attrs['d_sizes'] = np.array(self.vars['diameter']['d_diam'])
         attrs['v_sizes'] = np.array(self.vars['velocity']['d_vel'])
 
@@ -139,7 +143,7 @@ class Parsivel(object):
         ds = xr.Dataset(
             data_vars=xr_data,
             coords=coords,
-            attrs=attrs
+            attrs=attrs | self.vars
         )
         return ds
 
