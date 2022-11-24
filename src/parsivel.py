@@ -85,8 +85,6 @@ class Parsivel(object):
                         except ValueError:
                             print(f"Non-compatible base time format. {self.path}. Please make it compatible")
                             continue
-                    else:
-                        xr_data[table[i]['short_name']] = (['time'], [data[i]])
                 else:
                     try:
                         _val = to_numeric(data[i])
