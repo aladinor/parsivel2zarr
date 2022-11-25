@@ -78,7 +78,7 @@ class Parsivel(object):
                             self.time = to_datetime(data[i], format='%H%M%S')
                         except ValueError:
                             print(f"Non-compatible time format. {self.path}. Please make it compatible")
-                            continue
+                            break
                     elif i == '21':
                         try:
                             self._base_time = to_datetime(data[i], format='%d.%m.%Y')
@@ -121,24 +121,27 @@ class Parsivel(object):
                 attrs[table[i]['short_name']] = self.vars['variables'][i]
             except KeyError:
                 pass
-        attrs['d_sizes'] = np.array(self.vars['diameter']['d_diam'])
-        attrs['v_sizes'] = np.array(self.vars['velocity']['d_vel'])
+        try:
+            attrs['d_sizes'] = np.array(self.vars['diameter']['d_diam'])
+            attrs['v_sizes'] = np.array(self.vars['velocity']['d_vel'])
 
-        vel = np.array(self.vars['velocity']['vel'])
-        diameter = np.array(self.vars['diameter']['diam'])
-        coords = dict(time=('time',
-                            np.array(
-                                [to_datetime(
-                                    f"{self.time.strftime('%X')} {self._base_time.strftime('%Y%m%d')}").to_datetime64()
-                                 ])),
-                      diameter=(['diameter'], diameter),
-                      velocity=(['velocity'], vel))
-        ds = xr.Dataset(
-            data_vars=xr_data,
-            coords=coords,
-            attrs=attrs | self.vars
-        )
-        return ds
+            vel = np.array(self.vars['velocity']['vel'])
+            diameter = np.array(self.vars['diameter']['diam'])
+            coords = dict(time=('time',
+                                np.array(
+                                    [to_datetime(
+                                        f"{self.time.strftime('%X')} {self._base_time.strftime('%Y%m%d')}").to_datetime64()
+                                     ])),
+                          diameter=(['diameter'], diameter),
+                          velocity=(['velocity'], vel))
+            ds = xr.Dataset(
+                data_vars=xr_data,
+                coords=coords,
+                attrs=attrs | self.vars
+            )
+            return ds
+        except AttributeError:
+            return None
 
 
 def main():
@@ -151,6 +154,7 @@ def main():
         for idx, j in enumerate(folders):
             ls_ds = [Parsivel(i).txt2xr() for i in glob.glob(f'{j}/*.txt') if os.path.getsize(i) > 0]
             if ls_ds:
+                ls_ds = [i for i in ls_ds if i is not None]
                 ds = xr.merge(ls_ds)
                 ds2zarr(ds, store=path_save)
         print('done!')
