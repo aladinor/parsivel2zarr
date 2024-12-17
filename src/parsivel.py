@@ -21,8 +21,16 @@ def ds2zarr(ds, store='../zarr', **kwargs):
     store = zarr.DirectoryStore(store)
     args = {'consolidated': True}
     try:
-        ds.to_zarr(store=store,  **args)
+        time_enc = dict(
+            units="nanoseconds since 1950-01-01T00:00:00.00",
+            dtype="int64",
+            _FillValue=-9999,
+        )
+        args["encoding"] = dict(time=time_enc)
+        ds.to_zarr(store=store,
+                   **args)
     except zarr.errors.ContainsGroupError:
+        args.pop("encoding")
         args['mode'] = 'a'
         if not hasattr(ds, 'time'):
             args['append_dim'] = 'params'
