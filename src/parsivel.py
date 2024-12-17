@@ -156,10 +156,9 @@ def main():
             if ls_ds:
                 ls_ds = [i for i in ls_ds if i is not None]
                 ds = xr.merge(ls_ds)
-                ds.to_zarr(
-                    path_save,
-                    consolidated=True,
-                    zarr_version=2,
+                ds2zarr(
+                    ds,
+                    store=path_save
                 )
                 
         print('done!')
